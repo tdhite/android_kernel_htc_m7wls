@@ -37,6 +37,14 @@
 #include "tuner-i2c.h"
 #include "tuner-xc2028-types.h"
 
+/*
+ * A trick to suppress uninitialized variable warning without generating any
+ * code
+ */
+#ifndef uninitialized_var
+#define uninitialized_var(x) x = x
+#endif
+
 static int debug;
 module_param(debug, int, 0644);
 MODULE_PARM_DESC(debug, "Debugging level (0 to 2, default: 0 (off)).");
@@ -882,9 +890,10 @@ static int check_firmware(struct dvb_frontend *fe, unsigned int type,
 	struct xc4000_priv         *priv = fe->tuner_priv;
 	struct firmware_properties new_fw;
 	int			   rc = 0, is_retry = 0;
-	u16			   hwmodel;
+	u16			   uninitialized_var(hwmodel);
 	v4l2_std_id		   std0;
-	u8			   hw_major, hw_minor, fw_major, fw_minor;
+	u8			   uninitialized_var(hw_major), uninitialized_var(hw_minor);
+	u8			   uninitialized_var(fw_major), uninitialized_var(fw_minor);
 
 	dprintk(1, "%s called\n", __func__);
 

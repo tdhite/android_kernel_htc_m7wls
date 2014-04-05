@@ -35,6 +35,14 @@
 #include <net/netfilter/nf_conntrack.h>
 #endif
 
+/*
+ * A trick to suppress uninitialized variable warning without generating any
+ * code
+ */
+#ifndef uninitialized_var
+#define uninitialized_var(x) x = x
+#endif
+
 void
 xt_socket_put_sk(struct sock *sk)
 {
@@ -106,9 +114,9 @@ xt_socket_get4_sk(const struct sk_buff *skb, struct xt_action_param *par)
 	const struct iphdr *iph = ip_hdr(skb);
 	struct udphdr _hdr, *hp = NULL;
 	struct sock *sk;
-	__be32 daddr, saddr;
-	__be16 dport, sport;
-	u8 protocol;
+	__be32 uninitialized_var(daddr), uninitialized_var(saddr);
+	__be16 uninitialized_var(dport), uninitialized_var(sport);
+	u8 uninitialized_var(protocol);
 #ifdef XT_SOCKET_HAVE_CONNTRACK
 	struct nf_conn const *ct;
 	enum ip_conntrack_info ctinfo;
@@ -265,8 +273,8 @@ xt_socket_get6_sk(const struct sk_buff *skb, struct xt_action_param *par)
 	struct ipv6hdr *iph = ipv6_hdr(skb);
 	struct udphdr _hdr, *hp = NULL;
 	struct sock *sk;
-	struct in6_addr *daddr, *saddr;
-	__be16 dport, sport;
+	struct in6_addr *daddr = NULL, *saddr = NULL;
+	__be16 uninitialized_var(dport), uninitialized_var(sport);
 	int thoff, tproto;
 
 	tproto = ipv6_find_hdr(skb, &thoff, -1, NULL);
